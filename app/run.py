@@ -41,22 +41,41 @@ model = joblib.load("../models/classifier.pkl")
 def index():
 
     # extract data needed for visuals
-    # TODO: Below is an example - modify to extract data for your own visuals
+    genre_counts = df.groupby('genre').count()['message']
+    genre_names = list(genre_counts.index)
 
     messages = df.message.values
     text_length = [len(l.split(" ")) for l in messages]
     # create visuals
-    # TODO: Below is an example - modify to create your own visuals
 
-    graphs = [{
-        "data": [Histogram(
-            x=text_length)
-        ],
-        "layout": {
-            "title": {"text": "A Distribution of message lengths overall"},
-            'yaxis': {'title': "Count"},
-            'xaxis': {'title': "message length"}}
-    }]
+    graphs = [
+        {
+            'data': [
+                Bar(
+                    x=genre_names,
+                    y=genre_counts
+                )
+            ],
+
+            'layout': {
+                'title': 'Distribution of Message Genres',
+                'yaxis': {
+                    'title': "Count"
+                },
+                'xaxis': {
+                    'title': "Genre"
+                }
+            }
+        },
+        {
+            "data": [Histogram(
+                x=text_length)
+            ],
+            "layout": {
+                "title": {"text": "A Distribution of message lengths overall"},
+                'yaxis': {'title': "Count"},
+                'xaxis': {'title': "message length"}}
+        }]
 
     # encode plotly graphs in JSON
     ids = ["graph-{}".format(i) for i, _ in enumerate(graphs)]
