@@ -34,7 +34,7 @@ def clean_data(df):
 def save_data(df, database_filename):
     engine = sqlalchemy.create_engine('sqlite:///' + str(database_filename))
     df.to_sql("disaster", engine, index=False, if_exists='replace')
-    pass
+    return True
 
 
 def main():
