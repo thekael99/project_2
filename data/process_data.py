@@ -4,6 +4,15 @@ import sqlalchemy
 
 
 def load_data(messages_filepath, categories_filepath):
+    """
+    Loads a pandas DataFrame from data files(.csv)
+    Args:
+    messages_filepath: path of the disaster_message.csv
+    categories_filepath: path of the categories_message.csv
+    Returns:
+    df: features after merge (data frame)
+    """
+
     # using pandas load messages data to dataframe
     df_message = pd.read_csv(messages_filepath)
     # using pandas load categories data to dataframe
@@ -14,6 +23,14 @@ def load_data(messages_filepath, categories_filepath):
 
 
 def clean_data(df):
+    """
+    cleaning and formating DataFrame
+    Args:
+    df: DataFrame merged
+    Returns:
+    df: cleaned DataFrame
+    """
+
     # create a dataframe of the 36 individual category columns
     categories = df.categories.str.split(";", expand=True)
     # create categories df column name
@@ -32,12 +49,23 @@ def clean_data(df):
 
 
 def save_data(df, database_filename):
+    """
+    Save data to database
+    Args:
+    df: Cleaned DataFrame need to save
+    cdatabase_filename: database file name to save
+    Returns:
+    True if evething is Done
+    """
     engine = sqlalchemy.create_engine('sqlite:///' + str(database_filename))
     df.to_sql("disaster", engine, index=False, if_exists='replace')
     return True
 
 
 def main():
+    """
+    Read argv and reference to above function
+    """
     if len(sys.argv) == 4:
 
         messages_filepath, categories_filepath, database_filepath = sys.argv[1:]

@@ -10,7 +10,7 @@
 
 ## Project Overview
 
-Build a model to classifies disaster messages with webapp UI. The dataset can be found [here](https://github.com/thekael99/project_2/tree/master/data).
+In this project, I applied my data engineering skills to build a complete pipeline for data processing and model training for disaster text data classification. In addition, the project also provides a web interface for users to use conveniently. The dataset can be found [here](https://github.com/thekael99/project_2/tree/master/data).
 
 ML model pipeline can be found in [here](https://github.com/thekael99/project_2/tree/master/models).
 

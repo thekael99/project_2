@@ -24,62 +24,86 @@ import pickle
 
 
 def load_data(database_filepath="data/DisasterResponse.db"):
+    """
+    Loads a pandas DataFrame from a sqlite database
+    Args:
+    database_filepath: path of the sqlite database
+    Returns:
+    X: features
+    Y: target
+    """
     engine = sqlalchemy.create_engine('sqlite:///' + str(database_filepath))
-#     print(sqlalchemy.inspect(engine).get_schema_names())
     df = pd.read_sql_table("disaster", engine)
     X = df["message"]
-#     print(df.columns)
     Y = df.drop(columns=["id", "message", "original", "genre"])    # 36 label
     return X, Y
 
 
 def tokenize(text):
+    """
+    Tokenizes input text
+    Args:
+    text: text data as str
+    Returns:
+    text: tokenized text
+    """
     tokens = word_tokenize(text)
     tokens = [WordNetLemmatizer().lemmatize(token).lower().strip() for token in tokens]
     return tokens
 
 
 def build_model():
+    """
+    Creates a pipeline for model training including a GridSearchCV object.
+    Returns:
+    pipeline: Pipeline model
+    """
     pipeline = Pipeline([
         ('vecttext', CountVectorizer(tokenizer=tokenize)),
         ('tfidf', TfidfTransformer()),
         ('clf', MultiOutputClassifier(RandomForestClassifier()))])
 
-#     parameters = [
-#         {
-#             "clf": [RandomForestClassifier()],
-#             "clf__n_estimators": [5, 50, 100, 250],
-#             "clf__max_depth": [5, 8, 10],
-#             "clf__random_state": [42],
-#         },
-#     ]
+    parameters = {'clf__estimator__n_estimators': [50, 100]}
 
-#     rkf = RepeatedKFold(n_splits=3, n_repeats=2, random_state=42)
-
-#     cv = GridSearchCV(
-#         pipeline,
-#         parameters,
-#         cv=rkf,
-#         scoring=["f1_weighted", "f1_micro", "f1_samples"],
-#         refit="f1_weighted",
-#         n_jobs=-1,
-#     )
+    pipeline = GridSearchCV(pipeline, param_grid=parameters, verbose=3)
 
     return pipeline
 
 
 def evaluate_model(model, X_test, Y_test, category_names):
+    """
+    Evalute model
+
+    Arguments:
+    model: trained sci-kit learn estimator
+    X_test: feature data frame for test set evaluation
+    Y_test: target data frame for test set evaluation
+    category_names: Category predict
+    """
     y_pred = model.predict(X_test)
     for ind, column in enumerate(category_names):
         print(column, classification_report(Y_test.values[:, ind], y_pred[:, ind]))
 
 
 def save_model(model, model_filepath="./models/classifier.pkl"):
+    """
+    Saves model as a .pkl file. Destination is set by model_filepath argument.
+
+    Arguments:
+    model: trained sci-kit learn estimator to save
+    model_filepath: destination for model save
+    """
     pickle.dump(model, open(model_filepath, 'wb'))
     return None
 
 
 def main():
+    """
+    Loads the data, splits it into a train (80%) and test set (20%),
+    trains the model with pipeline,
+    evaluates it on the test set,
+    saves the model as a .pkl file.
+    """
     if len(sys.argv) == 3:
         database_filepath, model_filepath = sys.argv[1:]
         print('Loading data...\n    DATABASE: {}'.format(database_filepath))
